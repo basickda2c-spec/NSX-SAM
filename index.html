@@ -30,12 +30,14 @@
     position:fixed; inset:0; z-index:0; overflow:hidden; background:#000;
   }
   .backdrop video{
-    position:absolute; top:50%; left:50%; min-width:100%; min-height:100%;
-    width:auto; height:auto; transform:translate(-50%,-50%);
-    object-fit:cover; opacity:.92;
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; opacity:0;
+    transition:opacity .8s ease;
+    transform:translateZ(0); will-change:opacity;
   }
+  .backdrop video.is-ready{ opacity:1; }
   .backdrop::after{
-    content:""; position:absolute; inset:0; background:rgba(0,0,0,.12);
+    content:""; position:absolute; inset:0; background:rgba(0,0,0,0);
   }
 
   /* ---------- HOME GALLERY ---------- */
@@ -79,12 +81,13 @@
 
   /* ---------- OVERLAY WINDOWS ---------- */
   .overlay-scrim{
-    position:fixed; inset:0; z-index:100; background:rgba(0,0,0,.28);
-    backdrop-filter:blur(0.6rem);
-    display:none; align-items:flex-start; justify-content:center;
+    position:fixed; inset:0; z-index:100;
+    display:flex; align-items:flex-start; justify-content:center;
     overflow-y:auto; padding:5rem 1rem 6rem;
+    opacity:0; visibility:hidden; transition:opacity .25s ease;
+    pointer-events:none;
   }
-  .overlay-scrim.active{ display:flex; }
+  .overlay-scrim.active{ opacity:1; visibility:visible; pointer-events:auto; }
   .window{
     background:#fff; border-radius:var(--window-radius); box-shadow:var(--window-shadow);
     width:100%; max-width:78rem; padding:2rem 2.5rem 3rem;
@@ -180,7 +183,7 @@
 
   <!-- FONDO DE VIDEO -->
   <div class="backdrop">
-    <video autoplay muted loop playsinline poster="assets/pc.png">
+    <video id="bg-video" autoplay muted loop playsinline>
       <source src="assets/sam-blue-bg-2.mp4" type="video/mp4">
     </video>
   </div>
@@ -275,6 +278,15 @@
   </div>
 
 <script>
+/* fade-in suave del video de fondo apenas tenga el primer frame listo */
+(function(){
+  const v = document.getElementById("bg-video");
+  if(!v) return;
+  const reveal = () => v.classList.add("is-ready");
+  v.addEventListener("loadeddata", reveal, {once:true});
+  if(v.readyState >= 2) reveal();
+})();
+
 /* ================= CONFIG: EDITA AQUÍ TUS PROYECTOS ================= */
 /* IMPORTANTE: todas tus fotos deben vivir dentro de la carpeta assets/, */
 /* junto al video y a los íconos. Usa siempre rutas que empiecen con    */

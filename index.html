@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>NSX Creative — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;450;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --swatch-1: rgba(0,0,0,.85);
+    --swatch-2: rgba(0,0,0,.75);
+    --swatch-3: rgba(0,0,0,.6);
+    --swatch-4: rgba(0,0,0,.4);
+    --window-radius: 1.6rem;
+    --window-shadow: 0.4rem 0.4rem 2rem 0rem rgba(0,0,0,.18);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;font-family:"Inter",-apple-system,sans-serif;}
+  body{
+    background:#000;
+    color:var(--swatch-2);
+    overflow-x:hidden;
+    min-height:100vh;
+  }
+
+  /* ---------- VIDEO BACKGROUND ---------- */
+  .backdrop{
+    position:fixed; inset:0; z-index:0; overflow:hidden; background:#000;
+  }
+  .backdrop video{
+    position:absolute; top:50%; left:50%; min-width:100%; min-height:100%;
+    width:auto; height:auto; transform:translate(-50%,-50%);
+    object-fit:cover; opacity:.92;
+  }
+  .backdrop::after{
+    content:""; position:absolute; inset:0; background:rgba(0,0,0,.12);
+  }
+
+  /* ---------- HOME GALLERY ---------- */
+  .home{
+    position:relative; z-index:1; min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding:2rem;
+  }
+  .home-grid{
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:center;
+    gap:3.5rem 4.5rem; max-width:64rem;
+  }
+  .home-item{
+    display:flex; flex-direction:column; align-items:center; gap:.6rem;
+    text-decoration:none; cursor:pointer; background:none; border:0;
+    font-family:inherit;
+  }
+  .home-item img{
+    width:6.5rem; height:6.5rem; object-fit:contain;
+    filter:drop-shadow(0 .3rem .5rem rgba(0,0,0,.35));
+    transition:transform .18s ease;
+  }
+  .home-item:active img{ transform:scale(.94); opacity:.8; }
+  .home-item .caption-light{
+    font-size:0.6rem; font-weight:450; color:#fff;
+    filter:drop-shadow(.1rem .1rem .1rem rgba(0,0,0,.5));
+    letter-spacing:.01em;
+  }
+
+  /* ---------- FOOTER ---------- */
+  .site-footer{
+    position:fixed; left:0; right:0; bottom:0; z-index:50;
+    text-align:center; padding:1.2rem 1.5rem; pointer-events:none;
+  }
+  .site-footer span{
+    color:#fff; font-size:0.6rem; font-weight:250;
+    filter:drop-shadow(.1rem .1rem .1rem rgba(0,0,0,.5));
+    pointer-events:auto;
+  }
+  .site-footer a{ color:#fff; text-decoration:underline; }
+
+  /* ---------- OVERLAY WINDOWS ---------- */
+  .overlay-scrim{
+    position:fixed; inset:0; z-index:100; background:rgba(0,0,0,.28);
+    backdrop-filter:blur(1.6rem);
+    display:none; align-items:flex-start; justify-content:center;
+    overflow-y:auto; padding:5rem 1rem 6rem;
+  }
+  .overlay-scrim.active{ display:flex; }
+  .window{
+    background:#fff; border-radius:var(--window-radius); box-shadow:var(--window-shadow);
+    width:100%; max-width:78rem; padding:2rem 2.5rem 3rem;
+  }
+  .window-narrow{ max-width:42rem; text-align:center; }
+  .window-title{
+    font-size:0.9rem; font-weight:500; color:var(--swatch-3);
+    display:flex; align-items:center; gap:.6rem; margin-bottom:1.6rem;
+  }
+  .traffic-lights{ display:inline-flex; gap:.4rem; cursor:pointer; }
+  .traffic-lights span{ font-size:1.1rem; line-height:1; }
+  .dot-red{ color:#ff5c5f; } .dot-yellow{ color:#fac800; } .dot-green{ color:#34c759; }
+  hr.divider{ background:rgba(0,0,0,.15); border:0; height:1px; margin:.6rem 0 1.6rem; }
+
+  /* project meta row */
+  .project-meta{
+    display:grid; grid-template-columns:14rem 14rem 1fr; gap:3rem;
+    margin-bottom:1.8rem; align-items:start;
+    font-size:0.7rem; font-weight:400; color:rgba(0,0,0,.75); line-height:1.2;
+  }
+  .project-meta b{ font-weight:700; color:rgba(0,0,0,.75); }
+  .project-meta .sub{ color:rgba(0,0,0,.75); }
+  .project-meta .sub i{ display:block; font-style:italic; margin-top:.2rem; }
+  .project-meta .desc{ color:rgba(0,0,0,.75); line-height:1.4; text-align:right; }
+
+  /* gallery grid with placeholders — esquema cuadrada / vertical / horizontal como el original */
+  .gallery-grid{
+    display:grid; grid-template-columns:repeat(5,1fr); gap:1.5rem; align-items:end;
+    margin-bottom:3.5rem;
+  }
+  .gallery-grid.cols-4{ grid-template-columns:repeat(4,1fr); }
+  .gallery-grid.cols-3{ grid-template-columns:repeat(3,1fr); }
+  .gallery-grid.cols-2{ grid-template-columns:repeat(2,1fr); }
+  .gallery-grid.cols-1{ grid-template-columns:repeat(1,1fr); }
+  .gallery-item{ display:flex; flex-direction:column; }
+  .ph{
+    position:relative; width:100%; border-radius:.15rem; overflow:hidden;
+    background:
+      repeating-linear-gradient(45deg, rgba(0,0,0,.05) 0 1px, transparent 1px 24px),
+      repeating-linear-gradient(-45deg, rgba(0,0,0,.05) 0 1px, transparent 1px 24px),
+      #eceeef;
+    cursor:zoom-in; border:1px solid rgba(0,0,0,.06);
+    display:flex; align-items:flex-end; justify-content:flex-start;
+  }
+  .ph.horizontal{ aspect-ratio:2500/2300; }
+  .ph.vertical{ aspect-ratio:2300/2500; }
+  .ph img{ width:100%; height:100%; object-fit:cover; display:block; position:absolute; inset:0; }
+  .ph-label{
+    position:relative; z-index:1; font-size:.7rem;
+    color:rgba(0,0,0,.4); font-family:monospace; line-height:1.3;
+    background:rgba(255,255,255,.6); padding:.15rem .4rem; border-radius:.2rem;
+    margin:.6rem;
+  }
+  figcaption.caption{
+    display:block; text-align:center; margin-top:.5em; font-size:0.7rem; font-weight:450;
+    color:rgba(0,0,0,.6); line-height:1.2;
+  }
+
+  /* proyectos con cols:1 -> en desktop se ven en 2 columnas (como el mockup) */
+  @media (min-width:901px){
+    .gallery-grid.cols-1{ grid-template-columns:repeat(2,1fr); }
+  }
+
+  @media (max-width:900px){
+    .project-meta{ grid-template-columns:1fr; gap:.3rem; }
+    .project-meta .desc{ text-align:left; }
+    .gallery-grid{ grid-template-columns:repeat(2,1fr); }
+    .gallery-grid.cols-4{ grid-template-columns:repeat(2,1fr); }
+    .gallery-grid.cols-1{ grid-template-columns:repeat(1,1fr); } /* en mobile, 1 columna */
+    .window{ padding:1.4rem 1.2rem 2rem; }
+    .home-grid{ gap:2.2rem 2.4rem; }
+    .home-item img{ width:5rem; height:5rem; }
+  }
+
+  /* ---------- LIGHTBOX ---------- */
+  .lightbox{
+    position:fixed; inset:0; z-index:200; background:rgba(0,0,0,.9);
+    display:none; align-items:center; justify-content:center; padding:3rem;
+  }
+  .lightbox.active{ display:flex; }
+  .lightbox img{ max-width:100%; max-height:100%; border-radius:.3rem; }
+  .lightbox-close, .lightbox-prev, .lightbox-next{
+    position:absolute; background:rgba(87,87,87,.4); color:#fff; border:0; border-radius:50%;
+    width:2.8rem; height:2.8rem; font-size:1.3rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .lightbox-close{ top:1.5rem; right:1.5rem; }
+  .lightbox-prev{ left:1.5rem; top:50%; transform:translateY(-50%); }
+  .lightbox-next{ right:1.5rem; top:50%; transform:translateY(-50%); }
+  .lightbox-close:active, .lightbox-prev:active, .lightbox-next:active{ opacity:.7; }
+</style>
+</head>
+<body>
+
+  <!-- FONDO DE VIDEO -->
+  <div class="backdrop">
+    <video autoplay muted loop playsinline poster="assets/pc.png">
+      <source src="assets/sam-blue-bg-2.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <!-- HOME -->
+  <main class="home">
+    <div class="home-grid">
+      <button class="home-item" onclick="openWindow('about-me')">
+        <img src="assets/about.png" alt="About me">
+        <span class="caption-light">About me.rtf</span>
+      </button>
+      <a class="home-item" href="assets/CV.pdf" target="_blank">
+        <img src="assets/pdf.png" alt="CV">
+        <span class="caption-light">CV.pdf ↗</span>
+      </a>
+      <button class="home-item" onclick="openWindow('selected-work')">
+        <img src="assets/public.png" alt="Selected Work">
+        <span class="caption-light">Selected Work</span>
+      </button>
+      <div class="home-item" style="cursor:default;">
+        <img src="assets/dinamo-inside-sticker.gif" alt="sticker">
+        <span class="caption-light">sticker.gif</span>
+      </div>
+      <button class="home-item" onclick="openWindow('experiments')">
+        <img src="assets/pc.png" alt="Experiments">
+        <span class="caption-light">Experiments</span>
+      </button>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <span>NSX Creative™ &nbsp;&nbsp;<span id="clock"></span>&nbsp;&nbsp;
+      <a href="mailto:hola@nsxcreative.com">Email</a>, <a href="https://instagram.com" target="_blank">Instagram</a>
+    </span>
+  </footer>
+
+  <!-- OVERLAY: ABOUT ME -->
+  <div class="overlay-scrim" id="overlay-about-me">
+    <div class="window window-narrow">
+      <div class="window-title">
+        <span class="traffic-lights" onclick="closeWindow('about-me')">
+          <span class="dot-red">●</span><span class="dot-yellow">●</span><span class="dot-green">●</span>
+        </span>
+        About me
+      </div>
+      <hr class="divider">
+      <h2 style="font-family:'Space Grotesk',sans-serif; font-weight:400; line-height:1.3;">
+        Hola.<br><br>
+        Gracias por pasar por aquí.<br><br>
+        Escríbeme: <u><a href="mailto:hola@nsxcreative.com" style="color:inherit;">hola@nsxcreative.com</a></u><br><br>
+        Un abrazo,<br><br>
+        Giancarlo
+      </h2>
+    </div>
+  </div>
+
+  <!-- OVERLAY: SELECTED WORK -->
+  <div class="overlay-scrim" id="overlay-selected-work">
+    <div class="window">
+      <div class="window-title">
+        <span class="traffic-lights" onclick="closeWindow('selected-work')">
+          <span class="dot-red">●</span><span class="dot-yellow">●</span><span class="dot-green">●</span>
+        </span>
+        Selected Work
+      </div>
+      <hr class="divider">
+      <div id="selected-work-content"></div>
+    </div>
+  </div>
+
+  <!-- OVERLAY: EXPERIMENTS -->
+  <div class="overlay-scrim" id="overlay-experiments">
+    <div class="window">
+      <div class="window-title">
+        <span class="traffic-lights" onclick="closeWindow('experiments')">
+          <span class="dot-red">●</span><span class="dot-yellow">●</span><span class="dot-green">●</span>
+        </span>
+        Experiments
+      </div>
+      <hr class="divider">
+      <div id="experiments-content"></div>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <button class="lightbox-prev" onclick="navLightbox(-1)">‹</button>
+    <img id="lightbox-img" src="" alt="">
+    <button class="lightbox-next" onclick="navLightbox(1)">›</button>
+  </div>
+
+<script>
+/* ================= CONFIG: EDITA AQUÍ TUS PROYECTOS ================= */
+/* IMPORTANTE: todas tus fotos deben vivir dentro de la carpeta assets/, */
+/* junto al video y a los íconos. Usa siempre rutas que empiecen con    */
+/* "assets/..." — nunca pongas el archivo suelto junto al index.html.   */
+/* Ej: "assets/work/proyecto1/foto-01.jpg"                               */
+/* Si dejas "" (vacío) se muestra un placeholder de relleno.             */
+/* NO hace falta indicar si es horizontal o vertical: el sitio lo        */
+/* detecta solo según el tamaño real de cada imagen que subas.           */
+/* Medida recomendada de trabajo: 2500×2300 (horizontal) o               */
+/* 2300×2500 (vertical) — no es obligatorio, es solo la proporción       */
+/* base con la que está armado el diseño.                                */
+
+const stdDesc = "Praesent bibendum a elit non efficitur. Etiam et velit vitae quam aliquet fermentum. Quisque sit amet nulla dictum, cursus erat a, tempus est. Sed laoreet, magna eget mattis tincidunt.";
+
+const projects = [
+  {
+    number: "01", name: "Project Name: Watara Supervision",
+    subtitle: "CGI Product visualization", date: "March 2047",
+    description: "The Forgotten Console Among forgotten pixels and fragile plastics, the Watara Supervision <br> emerges an artifact from the margins of handheld history",
+    cols: 1,
+    images: ["assets/work/project-01-01.jpg", ""]
+  },
+  {
+    number: "02", name: "Project Name",
+    subtitle: "Vivamus sed sapien", date: "March 2047",
+    description: stdDesc,
+    cols: 1,
+    images: ["", ""]
+  },
+  {
+    number: "03", name: "Project Name",
+    subtitle: "Vivamus sed sapien", date: "March 2047",
+    description: stdDesc,
+    cols: 1,
+    images: ["", ""]
+  },
+];
+
+const experiments = {
+  number: null, name: "Lorem Ipsum Dolor",
+  subtitle: "Vivamus sed sapien", date: "March 2047",
+  description: stdDesc,
+  cols: 1,
+  images: ["", ""]
+};
+/* ===================================================================== */
+
+let lightboxImages = [];
+let lightboxIndex = 0;
+
+function makeGalleryItem(src, i, groupId){
+  const wrapper = document.createElement("div");
+  wrapper.className = "gallery-item";
+
+  const box = document.createElement("div");
+  box.className = "ph";
+  box.dataset.group = groupId;
+  box.dataset.index = i;
+  box.onclick = () => openLightbox(groupId, i);
+
+  if(src){
+    const img = document.createElement("img");
+    img.alt = "Image " + (i+1);
+    img.onload = () => {
+      box.classList.add(img.naturalWidth >= img.naturalHeight ? "horizontal" : "vertical");
+    };
+    img.src = src;
+    box.appendChild(img);
+  } else {
+    // sin imagen todavía: alterna horizontal/vertical para previsualizar el layout
+    box.classList.add(i % 2 === 0 ? "horizontal" : "vertical");
+    const label = document.createElement("span");
+    label.className = "ph-label";
+    label.textContent = i % 2 === 0 ? "Horizontal 2500×2300" : "Vertical 2300×2500";
+    box.appendChild(label);
+  }
+
+  const caption = document.createElement("figcaption");
+  caption.className = "caption";
+  caption.textContent = "Image " + (i+1);
+
+  wrapper.appendChild(box);
+  wrapper.appendChild(caption);
+  return wrapper;
+}
+
+function renderProject(p, groupId){
+  const cols = p.cols || 5;
+  const grid = document.createElement("div");
+  grid.className = "gallery-grid" + (cols !== 5 ? " cols-" + cols : "");
+  p.images.forEach((src, i) => grid.appendChild(makeGalleryItem(src, i, groupId)));
+
+  const wrap = document.createElement("div");
+  wrap.innerHTML = `
+    <div class="project-meta">
+      <b>${p.number ? p.number + "&nbsp;&nbsp;&nbsp;" : ""}${p.name}</b>
+      <div class="sub">${p.subtitle}<i>${p.date}</i></div>
+      <div class="desc">${p.description}</div>
+    </div>
+  `;
+  wrap.appendChild(grid);
+  return wrap;
+}
+
+const swContent = document.getElementById("selected-work-content");
+projects.forEach((p, i) => {
+  swContent.appendChild(renderProject(p, "sw-"+i));
+  if(i < projects.length - 1) swContent.appendChild(Object.assign(document.createElement("hr"), {className:"divider"}));
+});
+
+document.getElementById("experiments-content").appendChild(renderProject(experiments, "exp-0"));
+
+function openWindow(id){
+  document.getElementById("overlay-"+id).classList.add("active");
+  history.pushState({win:id}, "", "#"+id);
+}
+function closeWindow(id){
+  document.getElementById("overlay-"+id).classList.remove("active");
+  if(location.hash === "#"+id) history.pushState({}, "", location.pathname);
+}
+document.querySelectorAll(".overlay-scrim").forEach(scrim=>{
+  scrim.addEventListener("click", e=>{
+    if(e.target === scrim){ scrim.classList.remove("active"); }
+  });
+});
+
+function openLightbox(groupId, index){
+  lightboxImages = [...document.querySelectorAll(`.ph[data-group="${groupId}"]`)].map(el=>{
+    const img = el.querySelector("img");
+    return img ? img.src : null;
+  });
+  if(!lightboxImages[index]) return; // no hay imagen real cargada aún
+  lightboxIndex = index;
+  document.getElementById("lightbox-img").src = lightboxImages[lightboxIndex];
+  document.getElementById("lightbox").classList.add("active");
+}
+function closeLightbox(){ document.getElementById("lightbox").classList.remove("active"); }
+function navLightbox(dir){
+  lightboxIndex = (lightboxIndex + dir + lightboxImages.length) % lightboxImages.length;
+  document.getElementById("lightbox-img").src = lightboxImages[lightboxIndex];
+}
+document.addEventListener("keydown", e=>{
+  if(!document.getElementById("lightbox").classList.contains("active")) return;
+  if(e.key === "Escape") closeLightbox();
+  if(e.key === "ArrowLeft") navLightbox(-1);
+  if(e.key === "ArrowRight") navLightbox(1);
+});
+
+/* reloj en vivo */
+function tick(){
+  const d = new Date();
+  const months = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+  const pad = n => String(n).padStart(2,"0");
+  document.getElementById("clock").textContent =
+    `${pad(d.getDate())} ${months[d.getMonth()]} ${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+tick(); setInterval(tick, 1000*30);
+
+/* soporte de navegación por hash al cargar */
+window.addEventListener("load", ()=>{
+  const hash = location.hash.replace("#","");
+  if(["about-me","selected-work","experiments"].includes(hash)) openWindow(hash);
+});
+</script>
+</body>
+</html>

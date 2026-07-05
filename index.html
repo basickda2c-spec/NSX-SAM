@@ -183,7 +183,7 @@
 
   <!-- FONDO DE VIDEO -->
   <div class="backdrop">
-    <video id="bg-video" autoplay muted loop playsinline>
+    <video id="bg-video" autoplay muted loop playsinline webkit-playsinline="true">
       <source src="assets/sam-blue-bg-2.mp4" type="video/mp4">
     </video>
   </div>
@@ -216,7 +216,7 @@
 
   <!-- FOOTER -->
   <footer class="site-footer">
-    <span>NSX Creative™ &nbsp;&nbsp;<span id="clock"></span>&nbsp;&nbsp;
+    <span>NSX™ Creative Consultant-Copyright 2026 © &nbsp;&nbsp;<span id="clock"></span>&nbsp;&nbsp;
       <a href="mailto:hola@nsxcreative.com">Email</a>, <a href="https://instagram.com" target="_blank">Instagram</a>
     </span>
   </footer>
@@ -278,13 +278,27 @@
   </div>
 
 <script>
-/* fade-in suave del video de fondo apenas tenga el primer frame listo */
+/* fade-in del video de fondo: solo se muestra cuando YA está reproduciéndose */
 (function(){
   const v = document.getElementById("bg-video");
   if(!v) return;
+
   const reveal = () => v.classList.add("is-ready");
-  v.addEventListener("loadeddata", reveal, {once:true});
-  if(v.readyState >= 2) reveal();
+  v.addEventListener("playing", reveal);
+
+  // refuerza el autoplay por JS (algunos navegadores móviles lo requieren así)
+  v.muted = true;
+  const tryPlay = () => v.play().catch(()=>{});
+  tryPlay();
+
+  // si el navegador bloqueó el autoplay, lo reintenta apenas el usuario toque la pantalla
+  const retryOnInteraction = () => {
+    tryPlay();
+    document.removeEventListener("touchstart", retryOnInteraction);
+    document.removeEventListener("click", retryOnInteraction);
+  };
+  document.addEventListener("touchstart", retryOnInteraction, {once:true});
+  document.addEventListener("click", retryOnInteraction, {once:true});
 })();
 
 /* ================= CONFIG: EDITA AQUÍ TUS PROYECTOS ================= */

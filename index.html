@@ -132,9 +132,9 @@
     cursor:zoom-in; border:1px solid rgba(0,0,0,.06);
     display:flex; align-items:flex-end; justify-content:flex-start;
   }
-  .ph.horizontal{ aspect-ratio:2500/2300; }
-  .ph.vertical{ aspect-ratio:2300/2500; }
-  .ph img{ width:100%; height:100%; object-fit:cover; display:block; position:absolute; inset:0; }
+  .ph.horizontal{ aspect-ratio:4/3; }
+  .ph.vertical{ aspect-ratio:4/3; }
+  .ph img, .ph video{ width:100%; height:100%; object-fit:cover; display:block; position:absolute; inset:0; }
   .ph-label{
     position:relative; z-index:1; font-size:.7rem;
     color:rgba(0,0,0,.4); font-family:monospace; line-height:1.3;
@@ -168,7 +168,7 @@
     display:none; align-items:center; justify-content:center; padding:3rem;
   }
   .lightbox.active{ display:flex; }
-  .lightbox img{ max-width:100%; max-height:100%; border-radius:.3rem; }
+  .lightbox img, .lightbox video{ max-width:100%; max-height:100%; border-radius:.3rem; }
   .lightbox-close, .lightbox-prev, .lightbox-next{
     position:absolute; background:rgba(87,87,87,.4); color:#fff; border:0; border-radius:50%;
     width:2.8rem; height:2.8rem; font-size:1.3rem; cursor:pointer; display:flex; align-items:center; justify-content:center;
@@ -274,6 +274,7 @@
     <button class="lightbox-close" onclick="closeLightbox()">✕</button>
     <button class="lightbox-prev" onclick="navLightbox(-1)">‹</button>
     <img id="lightbox-img" src="" alt="">
+    <video id="lightbox-video" muted loop playsinline controls style="display:none"></video>
     <button class="lightbox-next" onclick="navLightbox(1)">›</button>
   </div>
 
@@ -351,6 +352,10 @@ const experiments = {
 let lightboxImages = [];
 let lightboxIndex = 0;
 
+function isVideoSrc(src){
+  return /\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(src || "");
+}
+
 function makeGalleryItem(src, i, groupId){
   const wrapper = document.createElement("div");
   wrapper.className = "gallery-item";
@@ -361,7 +366,16 @@ function makeGalleryItem(src, i, groupId){
   box.dataset.index = i;
   box.onclick = () => openLightbox(groupId, i);
 
-  if(src){
+  if(src && isVideoSrc(src)){
+    const video = document.createElement("video");
+    video.src = src;
+    video.muted = true; video.loop = true; video.autoplay = true; video.playsInline = true;
+    video.onloadedmetadata = () => {
+      box.classList.add(video.videoWidth >= video.videoHeight ? "horizontal" : "vertical");
+    };
+    video.play().catch(()=>{});
+    box.appendChild(video);
+  } else if(src){
     const img = document.createElement("img");
     img.alt = "Image " + (i+1);
     img.onload = () => {
@@ -427,20 +441,41 @@ document.querySelectorAll(".overlay-scrim").forEach(scrim=>{
   });
 });
 
+function showLightboxItem(){
+  const item = lightboxImages[lightboxIndex];
+  const imgEl = document.getElementById("lightbox-img");
+  const videoEl = document.getElementById("lightbox-video");
+  if(!item) return;
+  if(item.type === "video"){
+    imgEl.style.display = "none"; imgEl.src = "";
+    videoEl.style.display = "block";
+    videoEl.src = item.src;
+    videoEl.currentTime = 0;
+    videoEl.play().catch(()=>{});
+  } else {
+    videoEl.pause(); videoEl.style.display = "none"; videoEl.src = "";
+    imgEl.style.display = "block";
+    imgEl.src = item.src;
+  }
+}
 function openLightbox(groupId, index){
   lightboxImages = [...document.querySelectorAll(`.ph[data-group="${groupId}"]`)].map(el=>{
-    const img = el.querySelector("img");
-    return img ? img.src : null;
+    const media = el.querySelector("img, video");
+    if(!media) return null;
+    return { src: media.currentSrc || media.src, type: media.tagName === "VIDEO" ? "video" : "image" };
   });
-  if(!lightboxImages[index]) return; // no hay imagen real cargada aún
+  if(!lightboxImages[index]) return; // no hay imagen/video real cargado aún
   lightboxIndex = index;
-  document.getElementById("lightbox-img").src = lightboxImages[lightboxIndex];
+  showLightboxItem();
   document.getElementById("lightbox").classList.add("active");
 }
-function closeLightbox(){ document.getElementById("lightbox").classList.remove("active"); }
+function closeLightbox(){
+  document.getElementById("lightbox-video").pause();
+  document.getElementById("lightbox").classList.remove("active");
+}
 function navLightbox(dir){
   lightboxIndex = (lightboxIndex + dir + lightboxImages.length) % lightboxImages.length;
-  document.getElementById("lightbox-img").src = lightboxImages[lightboxIndex];
+  showLightboxItem();
 }
 document.addEventListener("keydown", e=>{
   if(!document.getElementById("lightbox").classList.contains("active")) return;

@@ -138,10 +138,7 @@
     background:rgba(255,255,255,.6); padding:.15rem .4rem; border-radius:.2rem;
     margin:.6rem;
   }
-  figcaption.caption{
-    display:block; text-align:center; margin-top:.5em; font-size:0.7rem; font-weight:450;
-    color:rgba(0,0,0,.6); line-height:1.2;
-  }
+  /* figcaption.caption ya no se usa: se quitó el texto "Image 1, Image 2..." de cada foto */
 
   @media (min-width:901px){
     .gallery-grid.cols-1{ grid-template-columns:repeat(2,1fr); }
@@ -182,26 +179,38 @@
     </video>
   </div>
 
+  <!-- ============================================================ -->
+  <!-- SECCIONES FIJAS: Contact, Visual Design, 3D & CGI,           -->
+  <!-- Web Development, Motion & Films                              -->
+  <!-- Contact / 3D & CGI / Motion & Films = ventanas dentro del sitio -->
+  <!-- Visual Design / Web Development = links externos (por ahora)  -->
+  <!-- ============================================================ -->
   <main class="home">
     <div class="home-grid">
-      <button class="home-item" onclick="openWindow('about-me')">
-        <img src="assets/about.png" alt="About me">
+      <button class="home-item" onclick="openWindow('contact')">
+        <img src="assets/about.png" alt="Contact">
         <span class="caption-light">Contact</span>
       </button>
+
+      <!-- Visual Design: link externo. Cuando la subas al mismo repo/dominio, actualiza este href. -->
       <a class="home-item" href="https://basickda2c-spec.github.io/NSX/" target="_blank">
-        <img src="assets/pdf.png" alt="CV">
+        <img src="assets/pdf.png" alt="Visual Design">
         <span class="caption-light">Visual Design</span>
       </a>
-      <button class="home-item" onclick="openWindow('selected-work')">
-        <img src="assets/public.png" alt="Selected Work">
+
+      <button class="home-item" onclick="openWindow('3d-cgi')">
+        <img src="assets/public.png" alt="3D & CGI">
         <span class="caption-light">3D & CGI</span>
       </button>
-      <div class="home-item" style="cursor:default;">
-        <img src="assets/dinamo-inside-sticker.gif" alt="sticker">
+
+      <!-- Web Development: link externo (placeholder). Reemplaza el href cuando tengas la página lista. -->
+      <a class="home-item" href="#">
+        <img src="assets/dinamo-inside-sticker.gif" alt="Web Development">
         <span class="caption-light">Web Development</span>
-      </div>
-      <button class="home-item" onclick="openWindow('experiments')">
-        <img src="assets/pc.png" alt="Experiments">
+      </a>
+
+      <button class="home-item" onclick="openWindow('motion-films')">
+        <img src="assets/pc.png" alt="Motion & Films">
         <span class="caption-light">Motion & Films</span>
       </button>
     </div>
@@ -213,13 +222,13 @@
     </span>
   </footer>
 
-  <div class="overlay-scrim" id="overlay-about-me">
+  <div class="overlay-scrim" id="overlay-contact">
     <div class="window window-narrow">
       <div class="window-title">
-        <span class="traffic-lights" onclick="closeWindow('about-me')">
+        <span class="traffic-lights" onclick="closeWindow('contact')">
           <span class="dot-red">●</span><span class="dot-yellow">●</span><span class="dot-green">●</span>
         </span>
-        About me
+        Contact
       </div>
       <hr class="divider">
       <div style="font-family:'Space Grotesk',sans-serif; font-weight:400; font-size:0.8rem; line-height:1.5;">
@@ -232,29 +241,29 @@
     </div>
   </div>
 
-  <div class="overlay-scrim" id="overlay-selected-work">
+  <div class="overlay-scrim" id="overlay-3d-cgi">
     <div class="window">
       <div class="window-title">
-        <span class="traffic-lights" onclick="closeWindow('selected-work')">
+        <span class="traffic-lights" onclick="closeWindow('3d-cgi')">
           <span class="dot-red">●</span><span class="dot-yellow">●</span><span class="dot-green">●</span>
         </span>
         3D & CGI
       </div>
       <hr class="divider">
-      <div id="selected-work-content"></div>
+      <div id="3d-cgi-content"></div>
     </div>
   </div>
 
-  <div class="overlay-scrim" id="overlay-experiments">
+  <div class="overlay-scrim" id="overlay-motion-films">
     <div class="window">
       <div class="window-title">
-        <span class="traffic-lights" onclick="closeWindow('experiments')">
+        <span class="traffic-lights" onclick="closeWindow('motion-films')">
           <span class="dot-red">●</span><span class="dot-yellow">●</span><span class="dot-green">●</span>
         </span>
         Motion & Films
       </div>
       <hr class="divider">
-      <div id="experiments-content"></div>
+      <div id="motion-films-content"></div>
     </div>
   </div>
 
@@ -299,6 +308,25 @@
 /* Medida recomendada de trabajo: 2500×2300 (horizontal) o               */
 /* 2300×2500 (vertical) — no es obligatorio, es solo la proporción       */
 /* base con la que está armado el diseño.                                */
+/*                                                                        */
+/* ─── ¿CÓMO AGREGAR MÁS FOTOS O VIDEOS A UN PROYECTO EXISTENTE? ───     */
+/* Solo agrega otra línea de texto dentro de "images: [ ... ]",          */
+/* separada por coma. No importa el orden ni si son fotos o videos       */
+/* mezclados (los .mp4/.webm/.mov se detectan solos como video).         */
+/* Ejemplo:                                                              */
+/*   images: [                                                           */
+/*     "assets/work/project-01-01.jpg",                                  */
+/*     "assets/work/project-01-02.jpg",                                  */
+/*     "assets/work/project-01-05.jpg"   <-- nueva foto agregada         */
+/*   ]                                                                    */
+/*                                                                        */
+/* ─── ¿CÓMO AGREGAR UN PROYECTO NUEVO DENTRO DE UNA SECCIÓN? ───        */
+/* Copia un bloque { ... } completo (desde "{" hasta "},"), pégalo       */
+/* justo antes del corchete de cierre "]" de esa sección (projects o     */
+/* experiments), y cambia sus datos: number, name, subtitle, date,       */
+/* description e images. No necesitas tocar nada más del código.        */
+/* ¿Es para "3D & CGI"? edítalo dentro de "projects".                    */
+/* ¿Es para "Motion & Films"? edítalo dentro de "experiments".           */
 
 const stdDesc = "Praesent bibendum a elit non efficitur. Etiam et velit vitae quam aliquet fermentum. Quisque sit amet nulla dictum, cursus erat a, tempus est. Sed laoreet, magna eget mattis tincidunt.";
 
@@ -393,12 +421,7 @@ function makeGalleryItem(src, i, groupId){
     box.appendChild(label);
   }
 
-  const caption = document.createElement("figcaption");
-  caption.className = "caption";
-  caption.textContent = "Image " + (i+1);
-
   wrapper.appendChild(box);
-  wrapper.appendChild(caption);
   return wrapper;
 }
 
@@ -420,13 +443,17 @@ function renderProject(p, groupId){
   return wrap;
 }
 
-const swContent = document.getElementById("selected-work-content");
+const cgiContent = document.getElementById("3d-cgi-content");
 projects.forEach((p, i) => {
-  swContent.appendChild(renderProject(p, "sw-"+i));
-  if(i < projects.length - 1) swContent.appendChild(Object.assign(document.createElement("hr"), {className:"divider"}));
+  cgiContent.appendChild(renderProject(p, "cgi-"+i));
+  if(i < projects.length - 1) cgiContent.appendChild(Object.assign(document.createElement("hr"), {className:"divider"}));
 });
 
-document.getElementById("experiments-content").appendChild(renderProject(experiments, "exp-0"));
+const motionContent = document.getElementById("motion-films-content");
+experiments.forEach((p, i) => {
+  motionContent.appendChild(renderProject(p, "motion-"+i));
+  if(i < experiments.length - 1) motionContent.appendChild(Object.assign(document.createElement("hr"), {className:"divider"}));
+});
 
 function openWindow(id){
   document.getElementById("overlay-"+id).classList.add("active");
@@ -496,7 +523,7 @@ tick(); setInterval(tick, 1000*30);
 
 window.addEventListener("load", ()=>{
   const hash = location.hash.replace("#","");
-  if(["about-me","selected-work","experiments"].includes(hash)) openWindow(hash);
+  if(["contact","3d-cgi","motion-films"].includes(hash)) openWindow(hash);
 });
 </script>
 </body>

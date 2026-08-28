@@ -117,6 +117,9 @@
   .gallery-grid.cols-3{ grid-template-columns:repeat(3,1fr); }
   .gallery-grid.cols-2{ grid-template-columns:repeat(2,1fr); }
   .gallery-grid.cols-1{ grid-template-columns:repeat(1,1fr); }
+  /* Cuando un proyecto tiene un solo elemento (ej. videos de Motion & Films), */
+  /* siempre ocupa el ancho completo, sin importar el tamaño de pantalla.      */
+  .gallery-grid.gallery-grid--solo{ grid-template-columns:1fr !important; }
   .gallery-item{ display:flex; flex-direction:column; }
   .ph{
     position:relative; width:100%; border-radius:.15rem; overflow:hidden;
@@ -158,6 +161,10 @@
   .lightbox{
     position:fixed; inset:0; z-index:200; background:rgba(0,0,0,.9);
     display:none; align-items:center; justify-content:center; padding:3rem;
+  }
+  @media (min-width:901px){
+    /* un poco más de espacio para la imagen/video en desktop */
+    .lightbox{ padding:1.5rem 4rem; }
   }
   .lightbox.active{ display:flex; }
   .lightbox img, .lightbox video{ max-width:100%; max-height:100%; border-radius:.3rem; }
@@ -429,6 +436,7 @@ function renderProject(p, groupId){
   const cols = p.cols || 5;
   const grid = document.createElement("div");
   grid.className = "gallery-grid" + (cols !== 5 ? " cols-" + cols : "");
+  if(p.images.length === 1) grid.classList.add("gallery-grid--solo");
   p.images.forEach((src, i) => grid.appendChild(makeGalleryItem(src, i, groupId)));
 
   const wrap = document.createElement("div");

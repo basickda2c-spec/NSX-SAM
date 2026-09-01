@@ -92,7 +92,7 @@ ul{ margin:0; padding-left:1.5em; }
    2.1) GRID COMPARTIDO
    Este es el sistema que garantiza que ciertos bloques de
    texto queden alineados con el borde izquierdo de la imagen
-   principal (project-01-main.jpg / .g-main).
+   principal (.gallery).
    12 columnas iguales, mismo --gutter y mismo --page-pad en
    todas las secciones => los "cortes" de columna caen siempre
    en el mismo píxel, sin importar el ancho de pantalla.
@@ -100,7 +100,7 @@ ul{ margin:0; padding-left:1.5em; }
    col-a  = columna de texto, ancho FIJO (min(100%, 26rem)) — nunca más
             ancha que el texto que contiene, así no queda aire muerto.
    col-b  = arranca justo después de col-a + un gap fijo de 50px;
-            es donde arranca .gallery / .g-main.
+            es donde arranca .gallery.
    col-c  = columna angosta a la derecha (meta, subtítulo, "Point/Line").
    col-bc = col-b + col-c juntas (para elementos que ocupan ambas,
             como .gallery, que así gana todo el espacio sobrante).
@@ -181,7 +181,7 @@ ul{ margin:0; padding-left:1.5em; }
 }
 
 /* =========================================================
-   4) PROYECTOS (Project 01 / Project 02)
+   4) PROYECTOS (Project 01 / Project 02 / Project 03)
    ========================================================= */
 .project{ padding: var(--page-pad); }
 
@@ -201,26 +201,39 @@ ul{ margin:0; padding-left:1.5em; }
 .project-body .col-text p{ margin:0 0 1em 0; }
 .project-body .col-text p:last-child{ margin-bottom:0; }
 
+/* ---------------------------------------------------------
+   GALERÍA — soporta de 1 a 6 imágenes/videos, TODOS con el
+   mismo tamaño (misma proporción 16:9 que tenía el video
+   principal). Es un grid de 2 columnas: con 1 sola pieza
+   ocupa todo el ancho, con 2 o más se acomodan de a pares,
+   y nunca se "aplastan" ni rompen el layout sin importar
+   cuántas agregues (probado hasta 6).
+   Para agregar una pieza nueva: copiá un bloque
+   <figure>...</figure> entero y pegalo dentro de .gallery.
+--------------------------------------------------------- */
 .gallery{
-  display:flex;
-  flex-wrap:wrap;
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--gutter);
-  align-items:flex-start;
 }
 .gallery figure{ margin:0; }
 .gallery img,
 .gallery video{
   display:block;
   width:100%;
-  height:auto;
+  height:100%;
+  aspect-ratio: 1920 / 1080;
+  object-fit:cover;
   cursor: zoom-in;
 }
-.gallery .g-main{ flex: 1 1 60%; max-width: 60%; }
-.gallery .g-sub{ flex: 1 1 18%; max-width: calc(20% - var(--gutter)); }
+
+/* Si una galería tiene una sola pieza, que ocupe las 2 columnas
+   (mismo efecto que tenía antes ".g-main" solo). Agregá la clase
+   "gallery--single" al div .gallery cuando pongas 1 sola imagen/video. */
+.gallery.gallery--single{ grid-template-columns: 1fr; }
 
 @media (max-width: 720px){
-  .gallery .g-main{ max-width:100%; flex-basis:100%; }
-  .gallery .g-sub{ max-width: calc(50% - var(--gutter)/2); flex-basis: calc(50% - var(--gutter)/2); }
+  .gallery{ grid-template-columns: 1fr; }
 }
 
 /* =========================================================
@@ -283,7 +296,7 @@ ul{ margin:0; padding-left:1.5em; }
 }
 
 /* =========================================================
-   7) LIGHTBOX — ampliar imágenes con doble clic
+   7) LIGHTBOX — ampliar imágenes con un clic
    ========================================================= */
 .lightbox{
   position:fixed;
@@ -365,13 +378,13 @@ ul{ margin:0; padding-left:1.5em; }
        Editable: nombre de marca, título/edición, texto derecho,
        links de contacto.
        El bloque "title-block" (Párrafo 1) usa col-b, por lo
-       que arranca en la misma columna que .g-main.
+       que arranca en la misma columna que .gallery.
   ========================================================== -->
   <header class="nav grid12">
      <div class="brand col-a">
     <a href="/">NSX®Creative</a>
   </div>
-       
+
     <div class="title-block col-b">
       <h2>Basic 01 Portfolio</h2><br>
       <h2><span class="subtle">Creative Dept, 2026</span><br>Volume II&nbsp; Number 2</h2>
@@ -403,8 +416,15 @@ ul{ margin:0; padding-left:1.5em; }
     <!-- =========================================================
          PROYECTO 01
          Editable: título de proyecto, tipo, fecha/meta, texto
-         descriptivo y las 3 imágenes (1 grande + 2 con caption).
-         "col-type" (Párrafo 2) usa col-b => alineado con .g-main.
+         descriptivo y las piezas de la galería (video/imágenes).
+         "col-type" (Párrafo 2) usa col-b => alineado con .gallery.
+
+         GALERÍA: acepta de 1 a 6 piezas, todas del mismo tamaño.
+         Para agregar una pieza nueva copiá un bloque <figure>
+         entero (con <img> o <video> adentro) y pegalo dentro de
+         .gallery. Si dejás UNA sola pieza, agregale la clase
+         "gallery--single" al div .gallery para que ocupe todo
+         el ancho (como está ahora con el video).
     ========================================================== -->
     <section class="project" id="project-01">
       <hr>
@@ -428,25 +448,20 @@ ul{ margin:0; padding-left:1.5em; }
         </div>
 
         <div class="gallery col-bc">
-          <figure class="g-main">
+          <figure>
             <video src="images/hsg-video.mp4" width="1920" height="1080" autoplay muted loop playsinline data-alt="Project 01 — imagen principal"></video>
           </figure>
-          <figure class="g-sub">
+          <figure>
             <img src="images/hsg-1.jpg" alt="Project 01 — figura 1">
-            <figcaption class="caption"></figcaption>
           </figure>
-          <figure class="g-sub">
+          <figure>
             <img src="images/hsg-2.jpg" alt="Project 01 — figura 2">
-            <figcaption class="caption"></figcaption>
           </figure>
-              <figure class="g-sub">
-            <img src="images/hsg-1.jpg" alt="Project 01 — figura 1">
-            <figcaption class="caption"></figcaption>
+          <!-- Ejemplo de cómo agregar una tercera imagen: solo copiá y pegá este bloque
+          <figure>
+            <img src="images/hsg-3.jpg" alt="Project 01 — figura 3">
           </figure>
-              <figure class="g-sub">
-            <img src="images/hsg-1.jpg" alt="Project 01 — figura 1">
-            <figcaption class="caption"></figcaption>
-          </figure>
+          -->
         </div>
       </div>
     </section>
@@ -454,7 +469,7 @@ ul{ margin:0; padding-left:1.5em; }
     <!-- =========================================================
          PROYECTO 02
          Misma estructura que Project 01.
-         "col-type" (Párrafo 3) usa col-b => alineado con .g-main.
+         "col-type" (Párrafo 3) usa col-b => alineado con .gallery.
     ========================================================== -->
     <section class="project" id="project-02">
       <hr>
@@ -476,16 +491,14 @@ ul{ margin:0; padding-left:1.5em; }
         </div>
 
         <div class="gallery col-bc">
-          <figure class="g-main">
+          <figure>
             <img src="images/project-02-main.jpg" alt="Project 02 — imagen principal">
           </figure>
-          <figure class="g-sub">
+          <figure>
             <img src="images/project-02-fig1.jpg" alt="Project 02 — figura 1">
-            <figcaption class="caption">Figure 1</figcaption>
           </figure>
-          <figure class="g-sub">
+          <figure>
             <img src="images/project-02-fig2.jpg" alt="Project 02 — figura 2">
-            <figcaption class="caption">Figure 2</figcaption>
           </figure>
         </div>
       </div>
@@ -494,7 +507,7 @@ ul{ margin:0; padding-left:1.5em; }
     <!-- =========================================================
          PROYECTO 03
          Misma estructura que Project 01.
-         "col-type" (Párrafo 3) usa col-b => alineado con .g-main.
+         "col-type" (Párrafo 3) usa col-b => alineado con .gallery.
     ========================================================== -->
     <section class="project" id="project-03">
       <hr>
@@ -516,62 +529,18 @@ ul{ margin:0; padding-left:1.5em; }
         </div>
 
         <div class="gallery col-bc">
-          <figure class="g-main">
+          <figure>
             <img src="images/project-02-main.jpg" alt="Project 03 — imagen principal">
           </figure>
-          <figure class="g-sub">
+          <figure>
             <img src="images/project-02-fig1.jpg" alt="Project 03 — figura 1">
-            <figcaption class="caption">Figure 1</figcaption>
           </figure>
-          <figure class="g-sub">
+          <figure>
             <img src="images/project-02-fig2.jpg" alt="Project 03 — figura 2">
-            <figcaption class="caption">Figure 2</figcaption>
           </figure>
         </div>
       </div>
     </section>
-
-           <!-- =========================================================
-         PROYECTO 02
-         Misma estructura que Project 01.
-         "col-type" (Párrafo 3) usa col-b => alineado con .g-main.
-    ========================================================== -->
-    <section class="project" id="project-02">
-      <hr>
-      <div class="project-header grid12">
-        <div class="col-title col-a"><h2>Project XX</h2></div>
-        <div class="col-type col-b"><h2 class="subtle">Type 0-24-DK</h2></div>
-        <div class="col-meta col-c">
-          Praesent Pellentesque<br>
-          March 2047<br>
-          Aenean nisl nulla, porttitor suscipit
-        </div>
-      </div>
-
-      <div class="project-body grid12">
-        <div class="col-text col-a">
-          <b>Integer et placerat est, eu imperdiet neque. Proin sit amet purus metus. In nec efficitur justo, sed maximus est.</b>
-          <p>Ut ornare arcu eros, at condimentum enim imperdiet vitae. Morbi lorem augue, commodo vel ipsum ac, sollicitudin placerat urna. Praesent sit amet mauris tortor. Duis ac risus sem. Fusce at elementum justo, ac mollis turpis. Pellentesque accumsan purus ut tristique bibendum. Nam feugiat sit amet enim in vehicula.</p>
-          <p>Praesent bibendum a elit non efficitur. Etiam et velit vitae quam aliquet fermentum. Quisque sit amet nulla dictum, cursus erat a, tempus est. Sed laoreet, magna eget mattis tincidunt, felis tellus vestibulum augue, in lobortis mauris risus eu nunc.</p>
-        </div>
-
-        <div class="gallery col-bc">
-          <figure class="g-main">
-            <img src="images/project-02-main.jpg" alt="Project 02 — imagen principal">
-          </figure>
-          <figure class="g-sub">
-            <img src="images/project-02-fig1.jpg" alt="Project 02 — figura 1">
-            <figcaption class="caption">Figure 1</figcaption>
-          </figure>
-          <figure class="g-sub">
-            <img src="images/project-02-fig2.jpg" alt="Project 02 — figura 2">
-            <figcaption class="caption">Figure 2</figcaption>
-          </figure>
-        </div>
-      </div>
-    </section>
-
-       
 
     <!-- =========================================================
          BANNER FULL-WIDTH
@@ -593,7 +562,7 @@ ul{ margin:0; padding-left:1.5em; }
     <!-- =========================================================
          ABOUT
          Editable: marca, lista de "Groups", textos "Point"/"Line".
-         "col-groups" (Párrafo 4) usa col-b => alineado con .g-main.
+         "col-groups" (Párrafo 4) usa col-b => alineado con .gallery.
     ========================================================== -->
     <section class="about" id="about">
       <hr>
@@ -676,7 +645,7 @@ function updateClock(){
 updateClock();
 setInterval(updateClock, 1000);
 
-// Lightbox: un clic en cualquier imagen de galería para ampliarla.
+// Lightbox: un clic en cualquier imagen/video de galería para ampliarla.
 (function(){
   var galleryImgs = Array.prototype.slice.call(document.querySelectorAll('.gallery img, .gallery video'));
   var lightbox = document.getElementById('lightbox');
@@ -685,8 +654,6 @@ setInterval(updateClock, 1000);
   var lbIndex = document.getElementById('lb-index');
   var lbAlt = document.getElementById('lb-alt');
   var current = 0;
-
-  function pad2(n){ return n.toString().padStart(2,'0'); }
 
   function update(){
     var el = galleryImgs[current];

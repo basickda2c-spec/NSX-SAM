@@ -2,41 +2,24 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lamborghini Aventador – Sketchfab</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lamborghini Aventador</title>
 
 <!-- 1) COPIAR ESTE <style> A TU CSS -->
 <style>
-  body { margin: 0; background: #0b0b0c; color: #eee; font-family: system-ui, sans-serif; }
-  .v3d { max-width: 1100px; margin: 0 auto; padding: 80px 24px; }
-  .v3d__head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
-  .v3d__head h2 { margin: 0; font-size: clamp(24px, 4vw, 40px); font-weight: 600; }
-  .v3d__head p { margin: 0; opacity: .5; font-size: 14px; }
-  .v3d__embed { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; background: #111; }
-  .v3d__embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-  .v3d__credit { margin: 10px 2px 0; font-size: 13px; opacity: .6; }
-  .v3d__credit a { color: #1CAAD9; font-weight: 600; text-decoration: none; }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  .v3d-full { position: relative; width: 100%; height: 100vh; height: 100dvh; background: #000; }
+  .v3d-full iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
 </style>
 </head>
 <body>
 
 <!-- 2) COPIAR ESTA SECCIÓN DONDE QUIERAS EN TU <body> -->
-<section id="visor-sketchfab" class="v3d">
-  <div class="v3d__head">
-    <h2>Lamborghini Aventador</h2>
-    <p>Arrastra para rotar</p>
-  </div>
-  <div class="v3d__embed">
-    <iframe title="Lamborghini Aventador" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true"
-      allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport
-      execution-while-not-rendered web-share loading="lazy"
-      src="https://sketchfab.com/models/2263b49846d840618046538012720c59/embed"></iframe>
-  </div>
-  <p class="v3d__credit">
-    <a href="https://sketchfab.com/3d-models/lamborghini-aventador-2263b49846d840618046538012720c59" target="_blank" rel="nofollow noopener">Lamborghini Aventador</a>
-    by <a href="https://sketchfab.com/blackcube4" target="_blank" rel="nofollow noopener">BlackCube</a>
-    on <a href="https://sketchfab.com" target="_blank" rel="nofollow noopener">Sketchfab</a>
-  </p>
+<section class="v3d-full" id="visor-sketchfab">
+  <iframe title="Lamborghini Aventador" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true"
+    allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport
+    execution-while-not-rendered web-share
+    src="https://sketchfab.com/models/2263b49846d840618046538012720c59/embed?autostart=1&preload=1&autospin=0.15&ui_infos=0&ui_controls=0&ui_stop=0&ui_hint=0&ui_help=0&ui_settings=0&ui_inspector=0&ui_vr=0&ui_ar=0&ui_fullscreen=0&ui_annotations=0&ui_watermark=0&dnt=1"></iframe>
 </section>
 
 </body>

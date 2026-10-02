@@ -3,124 +3,41 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Visor 3D – borrador</title>
+<title>Lamborghini Aventador – Sketchfab</title>
 
-<!-- 1) COPIAR AL <head> DE TU index.html -->
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-  }
-}
-</script>
-
-<!-- 2) COPIAR ESTE <style> A TU CSS -->
+<!-- 1) COPIAR ESTE <style> A TU CSS -->
 <style>
   body { margin: 0; background: #0b0b0c; color: #eee; font-family: system-ui, sans-serif; }
   .v3d { max-width: 1100px; margin: 0 auto; padding: 80px 24px; }
   .v3d__head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
   .v3d__head h2 { margin: 0; font-size: clamp(24px, 4vw, 40px); font-weight: 600; }
   .v3d__head p { margin: 0; opacity: .5; font-size: 14px; }
-  .v3d__stage { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden;
-    background: radial-gradient(circle at 50% 40%, #1d1d21, #0b0b0c 70%); touch-action: pan-y; }
-  .v3d__stage canvas { width: 100%; height: 100%; display: block; cursor: grab; }
-  .v3d__stage canvas:active { cursor: grabbing; }
-  .v3d__loader { position: absolute; inset: 0; display: grid; place-items: center; font-size: 14px;
-    letter-spacing: .1em; opacity: .7; transition: opacity .4s; pointer-events: none; }
-  .v3d__loader.is-done { opacity: 0; }
+  .v3d__embed { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; background: #111; }
+  .v3d__embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .v3d__credit { margin: 10px 2px 0; font-size: 13px; opacity: .6; }
+  .v3d__credit a { color: #1CAAD9; font-weight: 600; text-decoration: none; }
 </style>
 </head>
 <body>
 
-<!-- 3) COPIAR ESTA SECCIÓN DONDE QUIERAS EN TU <body> -->
-<section id="visor-3d" class="v3d">
+<!-- 2) COPIAR ESTA SECCIÓN DONDE QUIERAS EN TU <body> -->
+<section id="visor-sketchfab" class="v3d">
   <div class="v3d__head">
-    <h2>Logo 3D</h2>
+    <h2>Lamborghini Aventador</h2>
     <p>Arrastra para rotar</p>
   </div>
-  <div class="v3d__stage" id="v3dStage">
-    <canvas id="v3dCanvas"></canvas>
-    <div class="v3d__loader" id="v3dLoader">CARGANDO 0%</div>
+  <div class="v3d__embed">
+    <iframe title="Lamborghini Aventador" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true"
+      allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport
+      execution-while-not-rendered web-share loading="lazy"
+      src="https://sketchfab.com/models/2263b49846d840618046538012720c59/embed"></iframe>
   </div>
+  <p class="v3d__credit">
+    <a href="https://sketchfab.com/3d-models/lamborghini-aventador-2263b49846d840618046538012720c59" target="_blank" rel="nofollow noopener">Lamborghini Aventador</a>
+    by <a href="https://sketchfab.com/blackcube4" target="_blank" rel="nofollow noopener">BlackCube</a>
+    on <a href="https://sketchfab.com" target="_blank" rel="nofollow noopener">Sketchfab</a>
+  </p>
 </section>
 
-<!-- 4) COPIAR ESTE SCRIPT ANTES DE </body> -->
-<script type="module">
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-
-const MODEL_URL = 'assets/models/logo.glb'; // <- tu archivo GLB
-
-const stage = document.getElementById('v3dStage');
-const canvas = document.getElementById('v3dCanvas');
-const loaderEl = document.getElementById('v3dLoader');
-
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-
-const scene = new THREE.Scene();
-const pmrem = new THREE.PMREMGenerator(renderer);
-scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture; // iluminación PBR sin HDRI
-
-const camera = new THREE.PerspectiveCamera(35, 16 / 9, 0.1, 100);
-camera.position.set(0, 0.4, 6);
-
-const controls = new OrbitControls(camera, canvas);
-controls.enableDamping = true;
-controls.enablePan = false;
-controls.enableZoom = false; // evita secuestrar el scroll de la página
-controls.autoRotate = !matchMedia('(prefers-reduced-motion: reduce)').matches;
-controls.autoRotateSpeed = 1.2;
-
-// Centra y escala cualquier modelo a un tamaño estándar
-function fit(object) {
-  const box = new THREE.Box3().setFromObject(object);
-  const size = box.getSize(new THREE.Vector3());
-  const center = box.getCenter(new THREE.Vector3());
-  const scale = 3 / Math.max(size.x, size.y, size.z);
-  object.scale.setScalar(scale);
-  object.position.sub(center.multiplyScalar(scale));
-  scene.add(object);
-}
-
-function showFallback() { // se muestra si aún no existe el GLB
-  const m = new THREE.Mesh(
-    new THREE.TorusKnotGeometry(1, 0.35, 200, 32),
-    new THREE.MeshStandardMaterial({ color: 0xd9d9de, metalness: 1, roughness: 0.25 })
-  );
-  fit(m);
-  loaderEl.classList.add('is-done');
-}
-
-new GLTFLoader().load(
-  MODEL_URL,
-  (gltf) => { fit(gltf.scene); loaderEl.classList.add('is-done'); },
-  (xhr) => { if (xhr.total) loaderEl.textContent = 'CARGANDO ' + Math.round(xhr.loaded / xhr.total * 100) + '%'; },
-  () => { console.warn('No se encontró', MODEL_URL, '→ usando modelo de prueba'); showFallback(); }
-);
-
-// Tamaño responsivo
-new ResizeObserver(() => {
-  const { clientWidth: w, clientHeight: h } = stage;
-  renderer.setSize(w, h, false);
-  camera.aspect = w / h;
-  camera.updateProjectionMatrix();
-}).observe(stage);
-
-// Solo renderiza cuando la sección está en pantalla (ahorra batería/GPU)
-let visible = false;
-new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(stage);
-
-renderer.setAnimationLoop(() => {
-  if (!visible) return;
-  controls.update();
-  renderer.render(scene, camera);
-});
-</script>
 </body>
 </html>

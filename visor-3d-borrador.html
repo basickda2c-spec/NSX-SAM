@@ -122,8 +122,34 @@ loader.load(
   (err) => { console.error('No se pudo cargar', MODEL_URL, err); bar.classList.add('is-done'); }
 );
 
-const ease = (t) => 1 - Math.pow(1 - t, 4); // easeOutQuart
+/* Speed ramp: [momento 0-1, velocidad relativa] */
+const RAMP = [
+  [0.00, 0.2],  // arranque suave
+  [0.25, 3.2],  // barrido rápido
+  [0.65, 0.4],  // cámara lenta
+  [1.00, 0.05]  // se detiene casi sin velocidad
+];
 
+const ease = (() => {
+  const N = 240, table = [0];
+  const smooth = (x) => x * x * (3 - 2 * x);
+  const speed = (t) => {
+    for (let i = 1; i < RAMP.length; i++) {
+      if (t <= RAMP[i][0]) {
+        const [t0, s0] = RAMP[i - 1], [t1, s1] = RAMP[i];
+        return s0 + (s1 - s0) * smooth((t - t0) / (t1 - t0));
+      }
+    }
+    return RAMP[RAMP.length - 1][1];
+  };
+  for (let i = 1; i <= N; i++) table.push(table[i - 1] + speed(i / N) / N);
+  const total = table[N];
+  return (t) => {
+    const x = Math.min(Math.max(t, 0), 1) * N, i = Math.floor(x);
+    if (i >= N) return 1;
+    return (table[i] + (table[i + 1] - table[i]) * (x - i)) / total;
+  };
+})();
 function resize() {
   const w = stage.clientWidth, h = stage.clientHeight;
   renderer.setSize(w, h, false);

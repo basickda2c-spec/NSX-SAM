@@ -3,24 +3,158 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Lamborghini Aventador</title>
+<title>Gundam</title>
 
-<!-- 1) COPIAR ESTE <style> A TU CSS -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
 <style>
-  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
-  .v3d-full { position: relative; width: 100%; height: 100vh; height: 100dvh; background: #000; }
-  .v3d-full iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+  html, body { margin: 0; height: 100%; background: #000; }
+  .v3d-full { position: relative; width: 100%; height: 100vh; height: 100dvh; overflow: hidden;
+    background: radial-gradient(circle at 50% 45%, #202024 0%, #0a0a0b 70%); }
+  .v3d-full canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: pan-y; }
+  .v3d-full canvas:active { cursor: grabbing; }
+  .v3d-bar { position: absolute; left: 0; bottom: 0; height: 2px; width: 100%; background: #fff;
+    transform: scaleX(0); transform-origin: left; transition: transform .25s ease, opacity .6s ease .2s; pointer-events: none; }
+  .v3d-bar.is-done { opacity: 0; }
 </style>
 </head>
 <body>
 
-<!-- 2) COPIAR ESTA SECCIÓN DONDE QUIERAS EN TU <body> -->
-<section class="v3d-full" id="visor-sketchfab">
-  <iframe title="Lamborghini Aventador" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true"
-    allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport
-    execution-while-not-rendered web-share
-    src="https://sketchfab.com/models/2263b49846d840618046538012720c59/embed?autostart=1&preload=1&autospin=0.15&ui_infos=0&ui_controls=0&ui_stop=0&ui_hint=0&ui_help=0&ui_settings=0&ui_inspector=0&ui_vr=0&ui_ar=0&ui_fullscreen=0&ui_annotations=0&ui_watermark=0&dnt=1"></iframe>
+<section class="v3d-full" id="visor-gundam">
+  <canvas id="v3dCanvas"></canvas>
+  <div class="v3d-bar" id="v3dBar"></div>
 </section>
 
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+/* ====== AJUSTES ====== */
+const MODEL_URL   = 'assets/models/gundam.glb';
+const INTRO_MS    = 3000;                              // duración de la entrada de cámara
+const FINAL_DIR   = new THREE.Vector3(0.55, 0.2, 1);   // ángulo final (x, y, z)
+const START_DIR   = new THREE.Vector3(-1.4, 0.9, 1);   // ángulo de partida
+const START_DIST  = 2.4;                               // la cámara parte 2.4x más lejos
+const AUTOROTATE  = 0.8;                               // 0 = quieto
+/* ===================== */
+
+const stage  = document.getElementById('visor-gundam');
+const canvas = document.getElementById('v3dCanvas');
+const bar    = document.getElementById('v3dBar');
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const key = new THREE.DirectionalLight(0xffffff, 1.2);
+key.position.set(3, 5, 4);
+scene.add(key);
+
+const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 200);
+const target = new THREE.Vector3(0, 0, 0);
+
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.enablePan = false;
+controls.enableZoom = false;
+controls.enabled = false;            // se activa al terminar la intro
+controls.autoRotateSpeed = AUTOROTATE;
+canvas.style.touchAction = 'pan-y';  // en móvil el scroll vertical sigue funcionando
+
+const draco = new DRACOLoader().setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+const ktx2  = new KTX2Loader().setTranscoderPath('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/basis/').detectSupport(renderer);
+const loader = new GLTFLoader().setDRACOLoader(draco).setKTX2Loader(ktx2).setMeshoptDecoder(MeshoptDecoder);
+
+let mixer = null, finalPos = null, startPos = null, introStart = 0, introDone = false;
+const clock = new THREE.Clock();
+
+function frame(model) {
+  const box = new THREE.Box3().setFromObject(model);
+  const size = box.getSize(new THREE.Vector3());
+  const scale = 3 / size.y;
+  model.scale.setScalar(scale);
+  box.setFromObject(model);
+  model.position.sub(box.getCenter(new THREE.Vector3()));
+  scene.add(model);
+
+  const radius = new THREE.Box3().setFromObject(model).getBoundingSphere(new THREE.Sphere()).radius;
+  const vFov = THREE.MathUtils.degToRad(camera.fov);
+  const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
+  const dist = (radius * 1.15) / Math.sin(Math.min(vFov, hFov) / 2);
+
+  finalPos = FINAL_DIR.clone().normalize().multiplyScalar(dist);
+  startPos = START_DIR.clone().normalize().multiplyScalar(dist * START_DIST);
+  camera.position.copy(startPos);
+  camera.lookAt(target);
+  introStart = performance.now();
+}
+
+loader.load(
+  MODEL_URL,
+  (gltf) => {
+    frame(gltf.scene);
+    if (gltf.animations.length) {
+      mixer = new THREE.AnimationMixer(gltf.scene);
+      gltf.animations.forEach((clip) => mixer.clipAction(clip).play());
+    }
+    bar.style.transform = 'scaleX(1)';
+    setTimeout(() => bar.classList.add('is-done'), 200);
+  },
+  (xhr) => { if (xhr.total) bar.style.transform = `scaleX(${xhr.loaded / xhr.total})`; },
+  (err) => { console.error('No se pudo cargar', MODEL_URL, err); bar.classList.add('is-done'); }
+);
+
+const ease = (t) => 1 - Math.pow(1 - t, 4); // easeOutQuart
+
+function resize() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(stage);
+resize();
+
+let visible = true;
+new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(stage);
+
+renderer.setAnimationLoop(() => {
+  if (!visible) return;
+  const dt = clock.getDelta();
+  if (mixer) mixer.update(dt);
+
+  if (finalPos && !introDone) {
+    const t = Math.min((performance.now() - introStart) / INTRO_MS, 1);
+    camera.position.lerpVectors(startPos, finalPos, ease(t));
+    camera.lookAt(target);
+    if (t === 1) {
+      introDone = true;
+      controls.enabled = true;
+      controls.autoRotate = AUTOROTATE > 0 && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+      controls.update();
+    }
+  }
+  if (introDone) controls.update();
+  renderer.render(scene, camera);
+});
+</script>
 </body>
 </html>

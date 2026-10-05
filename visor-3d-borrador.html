@@ -98,7 +98,7 @@ function frame(model) {
   const radius = new THREE.Box3().setFromObject(model).getBoundingSphere(new THREE.Sphere()).radius;
   const vFov = THREE.MathUtils.degToRad(camera.fov);
   const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
-  const dist = (radius * 1.15) / Math.sin(Math.min(vFov, hFov) / 2);
+  const dist = (radius * 1.0) / Math.sin(Math.min(vFov, hFov) / 2);
 
   finalPos = FINAL_DIR.clone().normalize().multiplyScalar(dist);
   startPos = START_DIR.clone().normalize().multiplyScalar(dist * START_DIST);

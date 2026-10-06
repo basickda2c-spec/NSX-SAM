@@ -556,7 +556,9 @@ const FINAL_DIR   = new THREE.Vector3(0.55, 0.2, 1);
 const START_DIR   = new THREE.Vector3(-1.4, 0.9, 1);
 const START_DIST  = 2.4;
 const AUTOROTATE  = 0.8;                 // 0 = quieto
-const FIT         = 1.0;                 // margen del encuadre (menor = más cerca)
+const FIT_DESKTOP = 1 / 1.2;             // desktop: 20% más grande (menor = más cerca)
+const FIT_MOBILE  = 1 / 1.3;             // celular: 30% más grande
+const MOBILE_MAX  = 900;                 // ancho (px) hasta el que se considera celular
 const SHIFT_X     = 0;                   // mueve el modelo: 0.2 = 20% a la derecha, -0.2 = izquierda
 
 const EXPOSURE    = 1.0;
@@ -644,7 +646,7 @@ const draco = new DRACOLoader().setDecoderPath('https://www.gstatic.com/draco/ve
 const ktx2  = new KTX2Loader().setTranscoderPath('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/basis/').detectSupport(renderer);
 const loader = new GLTFLoader().setDRACOLoader(draco).setKTX2Loader(ktx2).setMeshoptDecoder(MeshoptDecoder);
 
-let mixer = null, finalPos = null, startPos = null, introStart = 0, introDone = false;
+let mixer = null, finalPos = null, startPos = null, introStart = 0, introDone = false, modelRadius = 0;
 const clock = new THREE.Clock();
 
 function contactShadow(width, y) {
@@ -661,6 +663,18 @@ function contactShadow(width, y) {
   scene.add(m);
 }
 
+/* Distancia de cámara según el tamaño de pantalla (se recalcula al redimensionar) */
+function refit() {
+  if (!modelRadius) return;
+  const vFov = THREE.MathUtils.degToRad(camera.fov);
+  const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
+  const fit  = window.innerWidth <= MOBILE_MAX ? FIT_MOBILE : FIT_DESKTOP;
+  const dist = (modelRadius * fit) / Math.sin(Math.min(vFov, hFov) / 2);
+  finalPos.copy(FINAL_DIR).normalize().multiplyScalar(dist);
+  startPos.copy(START_DIR).normalize().multiplyScalar(dist * START_DIST);
+  if (introDone) camera.position.setLength(dist);
+}
+
 function frame(model) {
   const box = new THREE.Box3().setFromObject(model);
   const scale = 3 / box.getSize(new THREE.Vector3()).y;
@@ -673,13 +687,10 @@ function frame(model) {
   const fs = fb.getSize(new THREE.Vector3());
   contactShadow(Math.max(fs.x, fs.z), fb.min.y - 0.01);
 
-  const radius = fb.getBoundingSphere(new THREE.Sphere()).radius;
-  const vFov = THREE.MathUtils.degToRad(camera.fov);
-  const hFov = 2 * Math.atan(Math.tan(vFov / 2) * camera.aspect);
-  const dist = (radius * FIT) / Math.sin(Math.min(vFov, hFov) / 2);
-
-  finalPos = FINAL_DIR.clone().normalize().multiplyScalar(dist);
-  startPos = START_DIR.clone().normalize().multiplyScalar(dist * START_DIST);
+  modelRadius = fb.getBoundingSphere(new THREE.Sphere()).radius;
+  finalPos = new THREE.Vector3();
+  startPos = new THREE.Vector3();
+  refit();
   camera.position.copy(startPos);
   camera.lookAt(target);
   introStart = performance.now();
@@ -735,6 +746,7 @@ function resize() {
   renderer.setSize(w, h, false);
   composer.setSize(w, h);
   camera.aspect = w / h;
+  refit();
   if (SHIFT_X) camera.setViewOffset(w, h, -w * SHIFT_X, 0, w, h);
   camera.updateProjectionMatrix();
 }

@@ -191,9 +191,11 @@
     .gallery-grid.cols-1{ grid-template-columns:repeat(1,1fr); }
     .window{ padding:1.4rem 1.2rem 2rem; }
     .home{ padding:1rem; }
-    .home-item{ width:18vw; }
-    .home-item img{ width:min(100%, 4.2rem); height:auto; aspect-ratio:1/1; }
-    .home-item .caption-light{ font-size:.6rem; }
+    /* celular: 3 iconos arriba y 2 abajo, centrados */
+    .home-grid{ flex-wrap:wrap; justify-content:center; align-items:flex-start; gap:1.8rem 0; max-width:26rem; margin:0 auto; }
+    .home-item{ width:33.333%; }
+    .home-item img{ width:5rem; height:5rem; aspect-ratio:1/1; }
+    .home-item .caption-light{ font-size:.7rem; }
   }
 
   .lightbox{

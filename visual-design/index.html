@@ -358,9 +358,15 @@ ul{ margin:0; padding-left:1.5em; }
 }
 /* Video en el lightbox: respeta su proporción (horizontal o vertical)
    y nunca se sale de la pantalla. */
+.lb-stage{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
 .lb-stage video{
-  max-width: 90vw;
+  max-width: 100%;
   max-height: 80vh;
+  margin: 0 auto;
   object-fit: contain;
 }
 .lb-close,

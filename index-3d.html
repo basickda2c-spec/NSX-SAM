@@ -673,6 +673,7 @@ function refit() {
   finalPos.copy(FINAL_DIR).normalize().multiplyScalar(dist);
   startPos.copy(START_DIR).normalize().multiplyScalar(dist * START_DIST);
   if (introDone) camera.position.setLength(dist);
+  console.log('[bg3d v2]', window.innerWidth <= MOBILE_MAX ? 'celular' : 'desktop', 'fit=' + fit.toFixed(3), 'dist=' + dist.toFixed(2));
 }
 
 function frame(model) {

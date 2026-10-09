@@ -232,8 +232,36 @@ ul{ margin:0; padding-left:1.5em; }
    "gallery--single" al div .gallery cuando pongas 1 sola imagen/video. */
 .gallery.gallery--single{ grid-template-columns: 1fr; }
 
+/* ---------------------------------------------------------
+   GALERÍA VERTICAL (video/imagen 1080x1350, proporción 4:5)
+   Se usa en Project 02. No recorta: respeta la proporción
+   original y limita el ancho para que, en desktop, el alto
+   nunca supere la pantalla visible (menos nav y footer).
+   En mobile ocupa todo el ancho disponible.
+--------------------------------------------------------- */
+.gallery.gallery--portrait{
+  grid-template-columns: 1fr;
+  justify-items: start;
+}
+.gallery.gallery--portrait figure{
+  width: 100%;
+  /* 0.8 = 1080/1350. El ancho máximo sale del alto de pantalla
+     disponible y de un tope de 640px */
+  max-width: min(100%, 640px, calc((100vh - 10rem) * 0.8));
+}
+.gallery.gallery--portrait video,
+.gallery.gallery--portrait img{
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1080 / 1350;
+  object-fit: contain;
+  background: #000;
+}
+
 @media (max-width: 720px){
   .gallery{ grid-template-columns: 1fr; }
+  /* En mobile el video vertical usa todo el ancho, sin tope por alto */
+  .gallery.gallery--portrait figure{ max-width: 100%; }
 }
 
 /* =========================================================
@@ -327,6 +355,13 @@ ul{ margin:0; padding-left:1.5em; }
   width:auto;
   height:auto;
   margin:0 auto;
+}
+/* Video en el lightbox: respeta su proporción (horizontal o vertical)
+   y nunca se sale de la pantalla. */
+.lb-stage video{
+  max-width: 90vw;
+  max-height: 80vh;
+  object-fit: contain;
 }
 .lb-close,
 .lb-prev,
@@ -471,8 +506,10 @@ ul{ margin:0; padding-left:1.5em; }
 
     <!-- =========================================================
          PROYECTO 02
-         Misma estructura que Project 01.
+         Misma estructura que Project 01, pero con galería VERTICAL
+         (video 1080x1350, 4:5) usando la clase "gallery--portrait".
          "col-type" (Párrafo 3) usa col-b => alineado con .gallery.
+         Tip: renombrá el archivo a "visual-design.mp4" (sin espacios).
     ========================================================== -->
     <section class="project" id="project-02">
       <hr>
@@ -493,11 +530,11 @@ ul{ margin:0; padding-left:1.5em; }
           <p>Praesent bibendum a elit non efficitur. Etiam et velit vitae quam aliquet fermentum. Quisque sit amet nulla dictum, cursus erat a, tempus est. Sed laoreet, magna eget mattis tincidunt, felis tellus vestibulum augue, in lobortis mauris risus eu nunc.</p>
         </div>
 
-        <div class="gallery col-bc">
+        <div class="gallery gallery--portrait col-bc">
           <figure>
-            <img src="images/Visual Design.mp4" alt="Project 02 — imagen principal">
+            <video src="images/Visual%20Design.mp4" width="1080" height="1350" autoplay muted loop playsinline preload="metadata" data-alt="Project 02 — Visual Design"></video>
           </figure>
-         </div>
+        </div>
       </div>
     </section>
 
@@ -622,7 +659,7 @@ ul{ margin:0; padding-left:1.5em; }
   <button class="lb-next" type="button" aria-label="Siguiente">›</button>
   <div class="lb-stage">
     <img id="lightbox-img" src="" alt="">
-    <video id="lightbox-video" src="" width="1920" height="1080" autoplay muted loop playsinline style="display:none;"></video>
+    <video id="lightbox-video" src="" autoplay muted loop playsinline style="display:none;"></video>
   </div>
   <div class="lb-caption">
     <span id="lb-index">00—0</span><br>

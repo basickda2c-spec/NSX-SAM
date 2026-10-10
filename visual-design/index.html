@@ -235,19 +235,20 @@ ul{ margin:0; padding-left:1.5em; }
 /* ---------------------------------------------------------
    GALERÍA VERTICAL (video/imagen 1080x1350, proporción 4:5)
    Se usa en Project 02. No recorta: respeta la proporción
-   original y limita el ancho para que, en desktop, el alto
-   nunca supere la pantalla visible (menos nav y footer).
-   En mobile ocupa todo el ancho disponible.
+   original. En desktop los videos se ven LADO A LADO (2
+   columnas) y el alto nunca supera la pantalla visible
+   (menos nav y footer). En mobile se apilan (1 columna).
 --------------------------------------------------------- */
 .gallery.gallery--portrait{
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, 1fr);
   justify-items: start;
+  align-items: start;
 }
 .gallery.gallery--portrait figure{
   width: 100%;
   /* 0.8 = 1080/1350. El ancho máximo sale del alto de pantalla
-     disponible y de un tope de 640px */
-  max-width: min(100%, 640px, calc((100vh - 10rem) * 0.8));
+     disponible */
+  max-width: min(100%, calc((100vh - 10rem) * 0.8));
 }
 .gallery.gallery--portrait video,
 .gallery.gallery--portrait img{
@@ -258,8 +259,29 @@ ul{ margin:0; padding-left:1.5em; }
   background: #000;
 }
 
+/* ---------------------------------------------------------
+   GALERÍA NATURAL — respeta la proporción REAL del video o
+   imagen (vertical, horizontal o cuadrada) sin recortar.
+   Se usa en Project 03. Agregá la clase "gallery--natural"
+   al div .gallery y NO pongas width/height en el <video>.
+--------------------------------------------------------- */
+.gallery.gallery--natural{
+  grid-template-columns: repeat(2, 1fr);
+  align-items: start;
+}
+.gallery.gallery--natural video,
+.gallery.gallery--natural img{
+  width: 100%;
+  height: auto;
+  aspect-ratio: auto;
+  object-fit: contain;
+  background: #000;
+}
+
 @media (max-width: 720px){
   .gallery{ grid-template-columns: 1fr; }
+  .gallery.gallery--portrait{ grid-template-columns: 1fr; }
+  .gallery.gallery--natural{ grid-template-columns: 1fr; }
   /* En mobile el video vertical usa todo el ancho, sin tope por alto */
   .gallery.gallery--portrait figure{ max-width: 100%; }
 }
@@ -514,6 +536,7 @@ ul{ margin:0; padding-left:1.5em; }
          PROYECTO 02
          Misma estructura que Project 01, pero con galería VERTICAL
          (video 1080x1350, 4:5) usando la clase "gallery--portrait".
+         Desktop: 2 videos lado a lado. Mobile: uno debajo del otro.
          "col-type" (Párrafo 3) usa col-b => alineado con .gallery.
          Tip: renombrá el archivo a "visual-design.mp4" (sin espacios).
     ========================================================== -->
@@ -548,7 +571,9 @@ ul{ margin:0; padding-left:1.5em; }
 
     <!-- =========================================================
          PROYECTO 03
-         Misma estructura que Project 01.
+         Misma estructura que Project 01, pero con la galería
+         "gallery--natural": el video respeta su proporción real
+         y NO se recorta. Por eso el <video> no lleva width/height.
          "col-type" (Párrafo 3) usa col-b => alineado con .gallery.
     ========================================================== -->
     <section class="project" id="project-03">
@@ -570,9 +595,9 @@ ul{ margin:0; padding-left:1.5em; }
           <p>Praesent bibendum a elit non efficitur. Etiam et velit vitae quam aliquet fermentum. Quisque sit amet nulla dictum, cursus erat a, tempus est. Sed laoreet, magna eget mattis tincidunt, felis tellus vestibulum augue, in lobortis mauris risus eu nunc.</p>
         </div>
 
-        <div class="gallery col-bc">
+        <div class="gallery gallery--natural col-bc">
           <figure>
-            <video src="images/astrolab-logo.mp4" width="1080" height="1350" autoplay muted loop playsinline preload="metadata" data-alt="Project 02 — Visual Design"></video>
+            <video src="images/astrolab-logo.mp4" autoplay muted loop playsinline preload="metadata" data-alt="Project 03 — Astrolab"></video>
           </figure>
         </div>
       </div>
